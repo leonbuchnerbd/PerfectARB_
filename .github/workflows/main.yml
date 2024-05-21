@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, windows-2022, macos-12]
         node-version: [20.9.0]
 
     steps:
@@ -57,14 +57,9 @@ jobs:
       id: tag_step
       run: |
         TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
+        echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
         git tag $TAG_NAME
         git push origin $TAG_NAME
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Set Tag Output
-      id: tag_output
-      run: echo "::set-output name=tag::$TAG_NAME"
 
   release:
     runs-on: ubuntu-latest
@@ -82,8 +77,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ TAG_NAME }}
-        release_name: Release ${{ TAG_NAME }}
+        tag_name: ${{ env.TAG_NAME }}
+        release_name: Release ${{ env.TAG_NAME }}
         draft: false
         prerelease: false
 
